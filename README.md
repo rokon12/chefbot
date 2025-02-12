@@ -20,7 +20,7 @@ ChefBot is an intelligent recipe recommendation chatbot powered by OpenAI's GPT-
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/chefbot.git
+   git clone git@github.com:rokon12/chefbot.git
    cd chefbot
    ```
 
