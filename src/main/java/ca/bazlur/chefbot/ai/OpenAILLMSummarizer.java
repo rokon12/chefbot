@@ -40,12 +40,22 @@ public class OpenAILLMSummarizer implements Summarizer {
     }
 
     interface SummarizerAssistant {
+
         @dev.langchain4j.service.UserMessage("""
-                Summarize the following conversation: \
-                
-                {message}
-                
-                Shortly summarize the main points from the following {{message}}  in under {desiredTokenLimit} tokens.""")
+        You are a helpful assistant summarizing past conversation turns for a chatbot.
+
+        Your goal is to create a concise and informative summary of the provided conversation history, 
+        focusing on key information relevant to continuing the conversation.  
+        Pay close attention to user preferences, requests, and any decisions they have made.  
+        Also note any specific topics or tasks discussed.  Be sure to retain information that might be needed 
+        to fulfill a user request or provide a relevant response.
+
+        The summary should be under {desiredTokenLimit} tokens and written in a clear, natural language style.  
+        Avoid simply listing the turns.  Instead, synthesize the information into a coherent narrative.
+
+        Conversation History:
+        {message}
+        """)
         String summarize(@V("message") String messages, @V("desiredTokenLimit") int desiredTokenLimit);
     }
 }

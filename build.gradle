@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group = 'ca.bazlur'
@@ -10,11 +11,7 @@ repositories {
 }
 
 dependencies {
-
-
-//    implementation 'dev.langchain4j:langchain4j:0.36.2'
     implementation 'dev.langchain4j:langchain4j:1.0.0-beta1'
-    //implementation 'dev.langchain4j:langchain4j-open-ai:0.36.2'
     implementation 'dev.langchain4j:langchain4j-open-ai:1.0.0-beta1'
 
     compileOnly 'org.projectlombok:lombok:1.18.30'
@@ -23,7 +20,7 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
 
     implementation 'org.slf4j:slf4j-api:2.0.9'
-    implementation 'ch.qos.logback:logback-classic:1.4.11'
+    implementation 'ch.qos.logback:logback-classic:1.4.12'
 
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
@@ -32,6 +29,25 @@ dependencies {
     testImplementation 'org.mockito:mockito-junit-jupiter:5.8.0'
     testImplementation 'org.assertj:assertj-core:3.21.0'
 }
+
+tasks.register('fatJar', Jar) {
+    manifest {
+        attributes(
+                'Main-Class': 'ca.bazlur.chefbot.Main', // Make sure this is the correct fully qualified class name
+                'Implementation-Title': 'Chefbot',
+                'Implementation-Version': version
+        )
+    }
+    archiveClassifier = 'all'
+    from sourceSets.main.output
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE // Or DuplicatesStrategy.WARN, or DuplicatesStrategy.FAIL
+}
+
+assemble.dependsOn fatJar
 
 test {
     useJUnitPlatform()
