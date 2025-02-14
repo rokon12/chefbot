@@ -20,6 +20,7 @@ public class RecipeBot {
     private final RecipeExtractor recipeExtractor;
 
     public RecipeBot(String openAiApiKey) {
+
         OpenAiChatModel openAiModel = OpenAiChatModel.builder()
                 .apiKey(openAiApiKey)
                 .modelName(MODEL_NAME)
