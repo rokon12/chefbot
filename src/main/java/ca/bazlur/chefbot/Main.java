@@ -19,7 +19,7 @@ public class Main {
         }
 
         // Initialize the recipe bot
-        RecipeBot recipeBot = new RecipeBot(openAiApiKey);
+        RecipeBot recipeBot = RecipeBot.create(openAiApiKey);
         Scanner scanner = new Scanner(System.in);
 
         // Display initial greeting

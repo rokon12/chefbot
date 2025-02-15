@@ -12,7 +12,8 @@ import java.util.Set;
 @Builder
 @Description("A recipe with ingredients, instructions, and other details")
 public final class Recipe implements BotResponse {
-    private String id;
+    private final String type = "recipe";
+
     private String name;
     private String description;
     private List<String> ingredients;

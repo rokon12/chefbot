@@ -5,57 +5,73 @@ import ca.bazlur.chefbot.ai.SummarizingTokenWindowChatMemory;
 import ca.bazlur.chefbot.api.RecipeBotAssistant;
 import ca.bazlur.chefbot.domain.model.BotResponse;
 import ca.bazlur.chefbot.domain.model.Conversation;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
+import ca.bazlur.chefbot.domain.model.Recipe;
+import com.google.gson.*;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiTokenizer;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.store.memory.chat.InMemoryChatMemoryStore;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.reflect.Type;
+
 @Slf4j
 public class RecipeBot {
     public static final String MODEL_NAME = "gpt-4o";
+    public static final int MAX_TOKENS = 4000;
+
     private final RecipeBotAssistant recipeBotAssistant;
-    private final RecipeExtractor recipeExtractor;
 
-    public RecipeBot(String openAiApiKey) {
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(BotResponse.class, new BotResponseDeserializer())
+            .create();
 
+    public RecipeBot(RecipeBotAssistant recipeBotAssistant) {
+        this.recipeBotAssistant = recipeBotAssistant;
+    }
+
+    public static RecipeBot create(String openAiApiKey) {
         OpenAiChatModel openAiModel = OpenAiChatModel.builder()
                 .apiKey(openAiApiKey)
                 .modelName(MODEL_NAME)
                 .temperature(0.7)
-                //.logRequests(true)
-                //.logResponses(true)
                 .build();
 
-        this.recipeBotAssistant = AiServices.builder(RecipeBotAssistant.class)
+        RecipeBotAssistant assistant = AiServices.builder(RecipeBotAssistant.class)
                 .chatLanguageModel(openAiModel)
                 .chatMemory(SummarizingTokenWindowChatMemory.builder()
                         .id("recipe-bot")
-                        .maxTokens(1000, new OpenAiTokenizer(MODEL_NAME))
+                        .maxTokens(MAX_TOKENS, new OpenAiTokenizer(MODEL_NAME))
                         .chatMemoryStore(new InMemoryChatMemoryStore())
                         .summarizer(new OpenAILLMSummarizer(openAiModel, 300))
                         .build())
                 .build();
 
-        this.recipeExtractor = AiServices.builder(RecipeExtractor.class)
-                .chatLanguageModel(openAiModel)
-                .build();
+        return new RecipeBot(assistant);
     }
 
     public BotResponse processUserInput(String userInput) {
         try {
             String response = recipeBotAssistant.getRecipe(userInput);
-            if (isRecipe(response)) {
-                return recipeExtractor.extractRecipe(response);
-            } else {
-                return new Conversation(response);
-            }
-
+            return gson.fromJson(response, BotResponse.class);
         } catch (Exception e) {
             log.error("Error processing user input", e);
             return new Conversation("I apologize, but I encountered an error. Could you please rephrase your request?");
+        }
+    }
+
+    static class BotResponseDeserializer implements JsonDeserializer<BotResponse> {
+
+        @Override
+        public BotResponse deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            JsonObject jsonObject = json.getAsJsonObject();
+            String type = jsonObject.get("type").getAsString();
+
+            return switch (type) {
+                case "recipe" -> context.deserialize(jsonObject, Recipe.class);
+                case "conversation" -> context.deserialize(jsonObject, Conversation.class);
+                default -> throw new JsonParseException("Unknown BotResponse type: " + type);
+            };
         }
     }
 
@@ -64,18 +80,5 @@ public class RecipeBot {
                 Hello! I'm your personal recipe recommendation assistant.\s
                 To help you better, could you tell me about any dietary restrictions\s
                 (e.g., vegetarian, vegan, gluten-free), preferred cuisines, or food allergies you have?""";
-    }
-
-    public static boolean isRecipe(String input) {
-        return input.contains("[END OF RECIPE]");
-    }
-
-    public static boolean isJsonValid(String input) {
-        try {
-            JsonElement element = JsonParser.parseString(input);
-            return element.isJsonObject() || element.isJsonArray();
-        } catch (Exception e) {
-            return false;
-        }
     }
 }

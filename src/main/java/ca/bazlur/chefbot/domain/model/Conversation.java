@@ -10,5 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Description("A conversation message")
 public final class Conversation implements BotResponse {
+    private final String type = "conversation";
+
     private String message;
 }
