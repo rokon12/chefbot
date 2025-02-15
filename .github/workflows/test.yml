@@ -1,8 +1,4 @@
 name: Run Tests
-permissions:
-    contents: read
-    checks: write
-    id-token: write
 
 on:
   push:
@@ -13,6 +9,11 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      id-token: write
+      pull-requests: write
 
     steps:
     - uses: actions/checkout@v3
