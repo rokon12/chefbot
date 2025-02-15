@@ -1,8 +1,4 @@
 name: Run Tests
-permissions:
-    contents: read
-    checks: write
-    id-token: write
 
 on:
   push:
@@ -13,6 +9,11 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      id-token: write
+      pull-requests: write
 
     steps:
     - uses: actions/checkout@v3
@@ -58,7 +59,7 @@ jobs:
         report_paths: '**/build/test-results/test/TEST-*.xml'
 
     - name: Add Coverage PR Comment
-      uses: madrapps/jacoco-report@v1.3
+      uses: madrapps/jacoco-report@v1.7.1
       if: github.event_name == 'pull_request'
       with:
         paths: ${{ github.workspace }}/build/reports/jacoco/test/jacocoTestReport.xml
