@@ -2,6 +2,7 @@ package ca.bazlur.chefbot.core;
 
 import ca.bazlur.chefbot.ai.OpenAILLMSummarizer;
 import ca.bazlur.chefbot.ai.SummarizingTokenWindowChatMemory;
+import ca.bazlur.chefbot.config.EnvironmentConfig;
 import ca.bazlur.chefbot.api.RecipeBotAssistant;
 import ca.bazlur.chefbot.domain.model.BotResponse;
 import ca.bazlur.chefbot.domain.model.Conversation;
@@ -17,8 +18,9 @@ import java.lang.reflect.Type;
 
 @Slf4j
 public class RecipeBot {
-    public static final String MODEL_NAME = "gpt-4o";
-    public static final int MAX_TOKENS = 4000;
+    private static final String MODEL_NAME = EnvironmentConfig.getEnv("OPENAI_MODEL_NAME", "gpt-4o");
+    private static final int MAX_TOKENS = EnvironmentConfig.getEnvAsInt("OPENAI_MAX_TOKENS", 4000);
+    private static final double TEMPERATURE = EnvironmentConfig.getEnvAsDouble("OPENAI_TEMPERATURE", 0.7);
 
     private final RecipeBotAssistant recipeBotAssistant;
 
@@ -34,7 +36,7 @@ public class RecipeBot {
         OpenAiChatModel openAiModel = OpenAiChatModel.builder()
                 .apiKey(openAiApiKey)
                 .modelName(MODEL_NAME)
-                .temperature(0.7)
+                .temperature(TEMPERATURE)
                 .build();
 
         RecipeBotAssistant assistant = AiServices.builder(RecipeBotAssistant.class)

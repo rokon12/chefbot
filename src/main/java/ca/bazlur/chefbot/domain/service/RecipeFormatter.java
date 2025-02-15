@@ -25,19 +25,12 @@ public class RecipeFormatter {
         System.out.println(CYAN + BOLD + "Recipe: " + RESET + BOLD + recipe.getName() + RESET);
         System.out.println(CYAN + BOLD + "--------------------------------------------------" + RESET);
 
-        if (recipe.getDescription() != null) {
-            System.out.println("\n" + UNDERLINE + "Description:" + RESET + " " + recipe.getDescription());
-        }
-
-        if (recipe.getServingSize() != null) {
-            System.out.println("\n" + UNDERLINE + "Serving Size:" + RESET + " " + BLUE + recipe.getServingSize() + " servings" + RESET);
-        }
+        printOptionalField("Description", recipe.getDescription());
+        printOptionalField("Serving Size", recipe.getServingSize() != null ? recipe.getServingSize() + " servings" : null, BLUE);
 
         if (recipe.getIngredients() != null && !recipe.getIngredients().isEmpty()) {
             System.out.println("\n" + UNDERLINE + "Ingredients:" + RESET);
-            for (String ingredient : recipe.getIngredients()) {
-                System.out.println(GREEN + "✔ " + ingredient + RESET);
-            }
+            recipe.getIngredients().forEach(ingredient -> System.out.println(GREEN + "✔ " + ingredient + RESET));
         }
 
         if (recipe.getInstructions() != null && !recipe.getInstructions().isEmpty()) {
@@ -47,27 +40,31 @@ public class RecipeFormatter {
             }
         }
 
-        if (recipe.getCuisineType() != null) {
-            System.out.println("\n" + UNDERLINE + "Cuisine:" + RESET + " " + BLUE + recipe.getCuisineType() + RESET);
-        }
+        printOptionalField("Cuisine", recipe.getCuisineType(), BLUE);
 
         if (recipe.getDietaryRestrictions() != null && !recipe.getDietaryRestrictions().isEmpty()) {
             System.out.print("\n" + UNDERLINE + "Dietary Restrictions:" + RESET + " ");
-            for (String restriction : recipe.getDietaryRestrictions()) {
-                System.out.print(GREEN + restriction + RESET + ", ");
-            }
-            System.out.println();
+            String restrictions = String.join(", ", recipe.getDietaryRestrictions().stream().map(s -> GREEN + s + RESET).toList());
+            System.out.println(restrictions);
         }
 
         System.out.println("\n" + UNDERLINE + "Spicy:" + RESET + " " + (recipe.isSpicy() ? RED + "Yes 🌶" + RESET : BLUE + "No" + RESET));
 
         if (recipe.getCalories() != null && !recipe.getCalories().isEmpty()) {
             System.out.println("\n" + UNDERLINE + "Calories:" + RESET);
-            for (Map.Entry<String, String> entry : recipe.getCalories().entrySet()) {
-                System.out.println(GREEN + entry.getKey() + ": " + entry.getValue() + " kcal" + RESET);
-            }
+            recipe.getCalories().forEach((key, value) -> System.out.println(GREEN + key + ": " + value + " kcal" + RESET));
         }
 
         System.out.println(CYAN + BOLD + "--------------------------------------------------" + RESET);
+    }
+
+    private static void printOptionalField(String label, String value) {
+        printOptionalField(label, value, RESET);
+    }
+
+    private static void printOptionalField(String label, String value, String color) {
+        if (value != null) {
+            System.out.println("\n" + UNDERLINE + label + ":" + RESET + " " + color + value + RESET);
+        }
     }
 }
