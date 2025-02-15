@@ -1,5 +1,8 @@
 # ChefBot - AI-Powered Recipe Assistant
 
+[![Tests](https://github.com/rokon12/chefbot/actions/workflows/test.yml/badge.svg)](https://github.com/rokon12/chefbot/actions/workflows/test.yml)
+[![Code Coverage](https://img.shields.io/badge/coverage-80%25-brightgreen.svg)](https://github.com/rokon12/chefbot/actions/workflows/test.yml)
+
 ChefBot is an intelligent recipe recommendation chatbot powered by OpenAI's GPT-4 model. It provides personalized recipe suggestions based on your dietary preferences, restrictions, and culinary interests.
 
 ## Features
