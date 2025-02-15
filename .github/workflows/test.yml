@@ -1,4 +1,8 @@
 name: Run Tests
+permissions:
+    contents: read
+    checks: write
+    id-token: write
 
 on:
   push:
